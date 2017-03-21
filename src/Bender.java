@@ -11,7 +11,7 @@ public class Bender {
     private int eje_y;
     private boolean invertido = false;
 
-    private Bender(String map) {
+    public Bender(String map) {
         //todas las variables cogen los valores sacados de los metodos, menos el mapa
         this.mapa = map;
         this.num_horizontal = cuentahorizontal(map);
@@ -19,7 +19,7 @@ public class Bender {
         this.cuadricula = rellenarray();
     }
 
-    private String run() {
+    public String run() {
         String resultado = "";
         char dir;
 
