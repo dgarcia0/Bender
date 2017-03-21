@@ -1,6 +1,3 @@
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by Dgarcia on 15/03/2017.
  */
@@ -14,31 +11,40 @@ public class Bender {
     private int eje_y;
     private boolean invertido = false;
 
-    public Bender(String map) {
+    private Bender(String map) {
+        //todas las variables cogen los valores sacados de los metodos, menos el mapa
         this.mapa = map;
         this.num_horizontal = cuentahorizontal(map);
         this.num_vertical = cuentavertical(map);
         this.cuadricula = rellenarray();
     }
 
-    public String run() {
+    private String run() {
         String resultado = "";
         char dir;
 
+        //bucle infinito quee solo se rompera al encontrar el caracter final
         while (true) {
+            //cada vuelta se movera el robot en la direccion adecuada y mete la direccion en el resultado final
             dir = direccion();
             resultado += dir;
+            //determina la posicion actual del robot
             char actual = cuadricula[eje_y][eje_x];
 
+            //mientras sea camino libre
             if (actual == ' ' || actual == 'X') {
                 while (actual == ' ' || actual == 'X') {
+                    //si la posicion siguiente es una pared, dejara de ir en esa direccion y saldra del bucle
                     if (siguiente(dir) == '#') {
                         break;
                     }
+                    //el robot se mueve, se añade la direccion en el resultado, y se actualiza la posicion del robot
                     moverRobot(dir);
                     resultado += dir;
                     actual = cuadricula[eje_y][eje_x];
 
+                    //en caso de que el siguiente movimiento sea a un portal, llamara al metodo para teletransportarse al otro portal
+                    //y volvera a actualizar la posicion del robot
                     if( actual == 'T') {
                         portal();
                         moverRobot(dir);
@@ -48,6 +54,7 @@ public class Bender {
                 }
             }
 
+            //si es portal, se cambiara la posicion a donde este el otro portal
             if( actual == 'T') {
                 portal();
                 moverRobot(dir);
@@ -55,10 +62,12 @@ public class Bender {
                 actual = cuadricula[eje_y][eje_x];
             }
 
+            //en caso de que sea posicion final, se acabara el programa
             if(actual == '$') {
                 break;
             }
 
+            //en caso de que te tenga que invertir la lista, se cambia el valor booleano de la variable invertido
             if (actual == 'I'){
                 invertido = !invertido;
             }
@@ -66,7 +75,8 @@ public class Bender {
         return resultado;
     }
 
-    public int cuentahorizontal(String mapa) {
+    private int cuentahorizontal(String mapa) {
+        //averigua la longitud horizontal, contando caracteres hasta llegar al \n
         int longitud = 0;
         for (int i = 0; mapa.charAt(i) != '\n'; i++) {
             longitud++;
@@ -74,7 +84,8 @@ public class Bender {
         return longitud;
     }
 
-    public int cuentavertical(String mapa){
+    private int cuentavertical(String mapa){
+        //averigua la longitud vertical, contando los saltos de linea
         int longitud = 0;
         for (int i = 0; i < mapa.length(); i++) {
             if (mapa.charAt(i) == '\n') {
@@ -85,14 +96,18 @@ public class Bender {
         return longitud;
     }
 
-    public char[][] rellenarray(){
+    private char[][] rellenarray(){
+        //crea array bidimensional con la longitud vertial y horizontal del mapa
         char[][] array = new char[num_vertical][num_horizontal];
         int separacion = 0;
+        //rellena array
         for (int i = 0; i<num_vertical; i++) {
             int aux = 0;
             for (int j = 0; aux<num_horizontal;j++) {
+                //evita que se guarden los caracteres de \n en el array
                 if (mapa.charAt(j+separacion) != '\n') {
                     array[i][aux] = mapa.charAt(j + separacion);
+                    //cuando se encuentre la x, guardar esa posicion como inicial
                     if(mapa.charAt(j+separacion) == 'X') {
                         this.eje_y = i;
                         this.eje_x = aux;
@@ -109,6 +124,7 @@ public class Bender {
     }
 
     private void moverRobot(char direccion) {
+        //segun la direccion recibida cambiara el eje x o y
         switch (direccion) {
             case 'S':
                 eje_y +=1;
@@ -126,15 +142,9 @@ public class Bender {
 
     private char direccion() {
         char dir = '\0';
-        List<Character> l1 = new ArrayList<>();
 
-        l1.add('S');
-        l1.add('E');
-        l1.add('N');
-        l1.add('W');
-
-        
-
+        //en caso de que no este invertido, ira comprobando las direcciones por orden,
+        //asegurandose de que el siguiente paso en esa direccion no es una pared
         if (!invertido) {
             if (cuadricula[eje_y + 1][eje_x] != '#') {
                 moverRobot('S');
@@ -150,6 +160,7 @@ public class Bender {
                 moverRobot('W');
             }
         }
+        //si esta invertido, cambia el orden de movimiento
         if (invertido) {
             if (cuadricula[eje_y - 1][eje_x] != '#') {
                 moverRobot('N');
@@ -172,6 +183,7 @@ public class Bender {
     }
 
     private char siguiente(char dir) {
+        //especifica la posicion siguiente segun la direccion
         char seguent = '\0';
         switch (dir) {
             case 'S':
@@ -190,6 +202,7 @@ public class Bender {
     }
 
     private void portal() {
+        //busca el caracter T en el mapa, asegurandose que no es la posicion actual
         for(int i = 0;i<num_vertical; i++) {
             for(int j =0; j<num_horizontal; j++) {
                 if(cuadricula[i][j] == 'T' && i != eje_y && j != eje_x ) {
@@ -200,5 +213,4 @@ public class Bender {
             }
         }
     }
-
 }
